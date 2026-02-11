@@ -232,21 +232,39 @@ def run_options_menu(stdscr):
 # ==============================================================================
 # [ BLOCK: CLI MODE ]
 # ==============================================================================
+# START CLI
 def run_cli_mode(db):
+    """Вывод в консоль (Компактный стиль + Умный перенос)"""
     result = cast_hexagram()
     hex_data = db.get(result['id'], {})
-    name = hex_data.get('name', 'UNKNOWN'); meaning = hex_data.get('meaning', 'Data missing.')
+    name = hex_data.get('name', 'UNKNOWN')
+    meaning = hex_data.get('meaning', 'Data missing.')
+
+    # Цветной заголовок (Cyan)
     print(f"\n \033[96mHEXAGRAM #{result['id']}: {name}\033[0m")
     print("-" * 30)
+
+    # Рисуем линии
     for i in range(5, -1, -1):
-        if result['lines'][i] == 1: print(f"   {YANG_CHAR * CLI_WIDTH} ")
-        else: sl = (CLI_WIDTH - CLI_GAP) // 2; print(f"   {YIN_CHAR * sl}{' '*CLI_GAP}{YIN_CHAR * sl} ")
+        if result['lines'][i] == 1:
+            print(f"   {YANG_CHAR * CLI_WIDTH} ")
+        else:
+            sl = (CLI_WIDTH - CLI_GAP) // 2
+            print(f"   {YIN_CHAR * sl}{' '*CLI_GAP}{YIN_CHAR * sl} ")
+
     print("-" * 30)
-    print(f" Upper: {result['upper_tri']}\n Lower: {result['lower_tri']}")
-    print("-" * 30)
-    print(meaning)
+    print(f" Upper: {result['upper_tri']}")
+    print(f" Lower: {result['lower_tri']}")
     print("-" * 30)
 
+    # ПРИМЕНЯЕМ SMART WRAP ПЕРЕД ПЕЧАТЬЮ
+    # Берем ширину 50 символов (стандарт для узкого вывода)
+    wrapped_meaning = smart_wrap(meaning, 60)
+    for line in wrapped_meaning:
+        print(line)
+
+    print("-" * 30)
+# END CLI
 # ==============================================================================
 # [ BLOCK: TUI MODE ]
 # ==============================================================================
