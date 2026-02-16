@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-HEXFETCH v2.5 (ProcessLang Edition)
-RESTORED: The cool ASCII Block Logo.
-FEATURES: Config, Options Menu, Smart Wrap.
+DAOFETCH v2.5 (ProcessLang Edition)
+The CLI Oracle for Cyber-Taoists.
 """
 
 import sys
@@ -26,7 +25,6 @@ except ImportError:
 # ==============================================================================
 # [ BLOCK: CONFIGURATION ]
 # ==============================================================================
-# START CONFIG
 VERSION = "v2.5"
 
 # Символы линий
@@ -39,7 +37,7 @@ CLI_GAP   = 4
 TUI_WIDTH = 20
 TUI_GAP   = 6
 
-# Операторы ProcessLang
+# Операторы ProcessLang (Триграммы)
 TRIGRAM_NAMES = {
     (1,1,1): "CONNECT",  (0,0,0): "DISSOLVE",
     (1,0,0): "CHOOSE",   (0,1,0): "ENCODE",
@@ -47,7 +45,7 @@ TRIGRAM_NAMES = {
     (1,0,1): "CYCLE",    (1,1,0): "RUNTIME",
 }
 
-# Таблица King Wen
+# Таблица King Wen (Бинарный код -> Номер гексаграммы)
 BIN_TO_ID = {
     "111111": "1",  "000000": "2",  "100010": "3",  "010001": "4",
     "111010": "5",  "010111": "6",  "010000": "7",  "000010": "8",
@@ -66,13 +64,11 @@ BIN_TO_ID = {
     "011011": "57", "110110": "58", "010011": "59", "110010": "60",
     "110011": "61", "001100": "62", "101010": "63", "010101": "64"
 }
-# END CONFIG
 
 # ==============================================================================
 # [ BLOCK: CONFIG MANAGER ]
 # ==============================================================================
-# START CONFIG MGR
-CONFIG_DIR = os.path.expanduser("~/.config/hexfetch")
+CONFIG_DIR = os.path.expanduser("~/.config/daofetch")
 CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
 
 def load_user_config():
@@ -93,8 +89,8 @@ def get_available_decks():
     search_paths = [
         os.path.join(os.path.dirname(os.path.abspath(__file__))),
         os.path.join(os.path.dirname(os.path.abspath(__file__)), "decks"),
-        "/usr/share/hexfetch", "/usr/share/hexfetch/decks",
-        os.path.expanduser("~/.config/hexfetch"),
+        "/usr/share/daofetch", "/usr/share/daofetch/decks",
+        os.path.expanduser("~/.config/daofetch"),
     ]
     for path in search_paths:
         if not os.path.exists(path): continue
@@ -104,7 +100,6 @@ def get_available_decks():
             deck_id = filename.replace("data_", "").replace(".json", "")
             decks[deck_id] = f"{deck_id.upper()} Deck ({filename})"
     return decks
-# END CONFIG MGR
 
 # ==============================================================================
 # [ BLOCK: LOGIC & DATA ]
@@ -115,11 +110,12 @@ def find_data_file(deck_name=None):
         deck_name = conf.get("default_deck")
     filename = "data.json"
     if deck_name and deck_name != "default": filename = f"data_{deck_name}.json"
+
     search_paths = [
         os.path.join(os.path.dirname(os.path.abspath(__file__))),
         os.path.join(os.path.dirname(os.path.abspath(__file__)), "decks"),
-        "/usr/share/hexfetch", "/usr/share/hexfetch/decks",
-        os.path.expanduser("~/.config/hexfetch"),
+        "/usr/share/daofetch", "/usr/share/daofetch/decks",
+        os.path.expanduser("~/.config/daofetch"),
     ]
     for path in search_paths:
         full_path = os.path.join(path, filename)
@@ -207,7 +203,7 @@ def run_options_menu(stdscr):
         start_y = max(0, (h // 2) - (box_h // 2))
         start_x = max(0, (w // 2) - (box_w // 2))
 
-        stdscr.addstr(start_y, start_x + (box_w - 22)//2, " HEXFETCH CONFIGURATION ", curses.color_pair(1) | curses.A_BOLD)
+        stdscr.addstr(start_y, start_x + (box_w - 22)//2, " DAOFETCH CONFIGURATION ", curses.color_pair(1) | curses.A_BOLD)
         stdscr.addstr(start_y + 2, start_x + 2, "Select Default Deck:", curses.color_pair(2))
 
         for i, deck_id in enumerate(deck_ids):
@@ -232,7 +228,6 @@ def run_options_menu(stdscr):
 # ==============================================================================
 # [ BLOCK: CLI MODE ]
 # ==============================================================================
-# START CLI
 def run_cli_mode(db):
     """Вывод в консоль (Компактный стиль + Умный перенос)"""
     result = cast_hexagram()
@@ -258,41 +253,44 @@ def run_cli_mode(db):
     print("-" * 30)
 
     # ПРИМЕНЯЕМ SMART WRAP ПЕРЕД ПЕЧАТЬЮ
-    # Берем ширину 50 символов (стандарт для узкого вывода)
     wrapped_meaning = smart_wrap(meaning, 60)
     for line in wrapped_meaning:
         print(line)
 
     print("-" * 30)
-# END CLI
+
 # ==============================================================================
 # [ BLOCK: TUI MODE ]
 # ==============================================================================
 def draw_splash_screen(stdscr):
     curses.curs_set(0)
     stdscr.nodelay(False)
-    # RESTORED BIG LOGO
+
+    # ASCII LOGO (DAOFETCH)
+    # ASCII LOGO (DAOFETCH)
+    # Ширина рамки: 64 символа. Внутреннее поле: 62 символа.
     logo = [
         "╔══════════════════════════════════════════════════════════════╗",
         "║                                                              ║",
-        "║   █   █  █████  ██   ██  █████  █████  █████  █████  █   █   ║",
-        "║   █   █  █       ██ ██   █      █        █    █      █   █   ║",
-        "║   █████  ████     ███    ████   ████     █    █      █████   ║",
-        "║   █   █  █       ██ ██   █      █        █    █      █   █   ║",
-        "║   █   █  █████  ██   ██  █      █████    █    █████  █   █   ║",
+        "║   ████    █████   █████   █████  █████  █████  █████  █   █  ║",
+        "║   █   █   █   █   █   █   █      █        █    █      █   █  ║",
+        "║   █   █   █████   █   █   ████   ████     █    █      █████  ║",
+        "║   █   █   █   █   █   █   █      █        █    █      █   █  ║",
+        "║   ████    █   █   █████   █      █████    █    █████  █   █  ║",
         "║                                                              ║",
         "╠══════════════════════════════════════════════════════════════╣",
-        "║         [  P R O C E S S L A N G   O R A C L E  ]            ║",
+        "║         [  P R O C E S S L A N G    O R A C L E  ]           ║",
         "╠══════════════════════════════════════════════════════════════╣",
         "║                                                              ║",
         "║   COMMANDS:                                                  ║",
         "║                                                              ║",
         "║   [ SPACE ] ....... CAST HEXAGRAM / PAUSE STREAM             ║",
         "║   [ ↑ / ↓ ] ....... SCROLL INTERPRETATION                    ║",
-        "║   [   Q   ] ....... TERMINATE SESSION                        ║",
-        f"║                                                    {VERSION}      ║",
+        "║   [    Q    ] ....... TERMINATE SESSION                      ║",
+        f"║{' ' * 55}{VERSION}   ║",
         "╚══════════════════════════════════════════════════════════════╝",
     ]
+
     prompt = "[ PRESS ANY KEY TO INITIALIZE ]"
     h, w = stdscr.getmaxyx()
     start_y = max(0, (h // 2) - (len(logo) // 2))
@@ -406,7 +404,7 @@ def run_tui_mode(stdscr, db):
 # [ BLOCK: MAIN ]
 # ==============================================================================
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="HexFetch: ProcessLang Oracle")
+    parser = argparse.ArgumentParser(description="Daofetch: ProcessLang Oracle")
     parser.add_argument("-t", "--text", action="store_true", help="Run in text mode (CLI)")
     parser.add_argument("-d", "--deck", type=str, help="Temporarily use specific deck")
     parser.add_argument("-o", "--options", action="store_true", help="Open configuration menu")
